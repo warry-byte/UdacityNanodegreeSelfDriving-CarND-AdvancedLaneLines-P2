@@ -11,7 +11,7 @@ calib_images_name_pattern = "calibration*.jpg"
 
 
 camera = camera.CustomCamera(calib_images_folder_path=checkerboard_images_folder, 
-                             calib_images_name_pattern =calib_images_name_pattern, 
+                             calib_images_name_pattern=calib_images_name_pattern, 
                              checkerboard_x_size=checkerboard_x_size, 
                              checkerboard_y_size=checkerboard_y_size)
 
@@ -25,5 +25,6 @@ nx = 9
 ny = 5
 undist_img, m = camera.corners_unwarp(test_img, nx, ny)
 
-cv2.imshow('Undistorted image - file: ' + test_img_filename, undist_img)
+# cv2.imshow('Undistorted image - file: ' + test_img_filename, undist_img)
 
+cv2.imwrite("output_images/" + test_img_filename + "_undistort.jpg", undist_img)
