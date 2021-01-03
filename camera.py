@@ -63,6 +63,7 @@ class CustomCamera():
              The Z coordinate is always 0 for a 2D calibration pattern
              
         '''
+        print("Calculate camera intrinsics...")
         objp = np.zeros((self.ny*self.nx, 3), np.float32)
         objp[:, :2] = np.mgrid[0:self.nx, 0:self.ny].T.reshape(-1,2)
         
@@ -75,7 +76,7 @@ class CustomCamera():
         
         #%% Step through the list and search for checkerboard corners
         for idx, fname in enumerate(images):
-            print("Reading calibration image: " + fname)
+            # print("Reading calibration image: " + fname)
             
             img = cv2.imread(fname)
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -87,7 +88,7 @@ class CustomCamera():
         
             # If found, add object points, image points
             if ret == True:
-                print("Corners found. Append points...")
+                # print("Corners found. Append points...")
                 
                 objpoints.append(objp)
                 imgpoints.append(corners)
@@ -100,8 +101,8 @@ class CustomCamera():
                 
                 #write_name = 'corners_found'+str(idx)+'.jpg'
                 #cv2.imwrite(write_name, img)
-                cv2.imshow('img', img)
-                cv2.waitKey(500)
+                # cv2.imshow('img', img)
+                # cv2.waitKey(500)
             
                 
         #%% Calibrate camera
