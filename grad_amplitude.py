@@ -11,7 +11,7 @@ import pickle
 # Define a function that applies Sobel x and y,
 # then computes the magnitude of the gradient
 # and applies a threshold
-def mag_thresh(img, sobel_kernel=3, mag_thresh=(0, 255)):
+def mag_thresh(img, sobel_kernel=3, thresh=(0, 255)):
 
     # Apply the following steps to img
     # 1) Convert to grayscale
@@ -29,7 +29,7 @@ def mag_thresh(img, sobel_kernel=3, mag_thresh=(0, 255)):
 
     # 5) Create a binary mask where mag thresholds are met
     binary_output = np.zeros(grad_img_8bit.shape)
-    binary_output[ (grad_img_8bit <= mag_thresh[1]) & (grad_img_8bit >= mag_thresh[0]) ] = 1
+    binary_output[ (grad_img_8bit <= thresh[1]) & (grad_img_8bit >= thresh[0]) ] = 1
 
     # 6) Return this mask as your binary_output image
     return binary_output

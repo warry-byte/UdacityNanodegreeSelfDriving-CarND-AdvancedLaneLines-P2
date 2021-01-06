@@ -11,7 +11,7 @@ import pickle
 # Define a function that applies Sobel x and y,
 # then computes the direction of the gradient
 # and applies a threshold.
-def dir_threshold(img, sobel_kernel=3, thresh=(0, np.pi/2)):
+def dir_thresh(img, sobel_kernel=3, thresh=(0, np.pi/2)):
 
     # Apply the following steps to img
     # 1) Convert to grayscale

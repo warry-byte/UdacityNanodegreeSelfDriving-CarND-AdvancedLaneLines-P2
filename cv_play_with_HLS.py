@@ -1,11 +1,11 @@
 #%% Inspired from https://stackoverflow.com/questions/10948589/choosing-the-correct-upper-and-lower-hsv-boundaries-for-color-detection-withcv/48367205#48367205
 
-
-
+#%% Imports
 import cv2
 import numpy as np
 import glob
-import apply_sobel as sob
+import grad_amplitude as sob_mag
+import grad_direction as sob_dir
 
 def nothing(x):
     pass
@@ -29,14 +29,24 @@ cv2.createTrackbar('VMin', trackbar_fig_name, 0, 255, nothing)
 cv2.createTrackbar('HMax', trackbar_fig_name, 0, 255, nothing)
 cv2.createTrackbar('SMax', trackbar_fig_name, 0, 255, nothing)
 cv2.createTrackbar('VMax', trackbar_fig_name, 0, 255, nothing)
-cv2.createTrackbar('Sob Min', trackbar_fig_name, 0, 255, nothing)
-cv2.createTrackbar('Sob Max', trackbar_fig_name, 0, 255, nothing)
+cv2.createTrackbar('Sob Mag Min', trackbar_fig_name, 0, 255, nothing)
+cv2.createTrackbar('Sob Mag Max', trackbar_fig_name, 0, 255, nothing)
+cv2.createTrackbar('Sob Dir Min', trackbar_fig_name, 0, 90, nothing)
+cv2.createTrackbar('Sob Dir Max', trackbar_fig_name, 0, 90, nothing)
 
 # Set default value for Max HSV trackbars
+# TODO load value from pickle
+cv2.setTrackbarPos('HMin', trackbar_fig_name, 0)
+cv2.setTrackbarPos('SMin', trackbar_fig_name, 0)
+cv2.setTrackbarPos('VMin', trackbar_fig_name, 0)
+cv2.setTrackbarPos('Sob Mag Min', trackbar_fig_name, 0)
+cv2.setTrackbarPos('Sob Dir Min', trackbar_fig_name, 0)
+
 cv2.setTrackbarPos('HMax', trackbar_fig_name, 255)
 cv2.setTrackbarPos('SMax', trackbar_fig_name, 255)
 cv2.setTrackbarPos('VMax', trackbar_fig_name, 255)
-cv2.setTrackbarPos('Sob Max', trackbar_fig_name, 255)
+cv2.setTrackbarPos('Sob Mag Max', trackbar_fig_name, 255)
+cv2.setTrackbarPos('Sob Dir Max', trackbar_fig_name, 90)
 
 # Initialize HSV min/max values
 hMin = sMin = vMin = hMax = sMax = vMax = 0
@@ -70,8 +80,10 @@ while(1):
     hMax = cv2.getTrackbarPos('HMax', trackbar_fig_name)
     sMax = cv2.getTrackbarPos('SMax', trackbar_fig_name)
     vMax = cv2.getTrackbarPos('VMax', trackbar_fig_name)
-    sob_thresh_min = cv2.getTrackbarPos('Sob Min', trackbar_fig_name)
-    sob_thresh_max = cv2.getTrackbarPos('Sob Max', trackbar_fig_name)
+    sob_thresh_mag_min = cv2.getTrackbarPos('Sob Mag Min', trackbar_fig_name)
+    sob_thresh_mag_max = cv2.getTrackbarPos('Sob Mag Max', trackbar_fig_name)
+    sob_thresh_dir_min = cv2.getTrackbarPos('Sob Dir Min', trackbar_fig_name) * np.pi/180
+    sob_thresh_dir_max = cv2.getTrackbarPos('Sob Dir Max', trackbar_fig_name) * np.pi/180 # scale to first quadrant angle
 
     # Set minimum and maximum HSV values to display
     lower = np.array([hMin, sMin, vMin])
@@ -85,9 +97,14 @@ while(1):
         mask = cv2.inRange(hsv, lower, upper)
         color_thresh = cv2.bitwise_and(image_list[i], image_list[i], mask=mask)
         
-        # gradient filtering using sobel
-        result_bin = sob.abs_sobel_thresh(color_thresh, thresh=(sob_thresh_min, sob_thresh_max))  # [0, 1]
-        result = cv2.bitwise_and(color_thresh, color_thresh, mask=result_bin)
+        # gradient magnitude filtering using sobel
+        result_mag_bin = sob_mag.mag_thresh(color_thresh, thresh=(sob_thresh_mag_min, sob_thresh_mag_max))  # [0, 1]
+                
+        # gradient direction filtering - USE COLOR FILTERED IMAGE and bitwise-AND mask with magnitude
+        result_dir_bin = sob_dir.dir_thresh(color_thresh, thresh=(sob_thresh_dir_min, sob_thresh_dir_max)) 
+        
+        final_mask = result_mag_bin.astype(np.uint8) & result_dir_bin.astype(np.uint8)
+        result = cv2.bitwise_and(color_thresh, color_thresh, mask=final_mask )
         
         # Display result images
         cv2.imshow(test_images[i], result) # figure name was set to the relative path name # [0, 254]
