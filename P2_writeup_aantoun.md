@@ -59,9 +59,18 @@ To demonstrate this step, I will describe how I apply the distortion correction 
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-I used a combination of color and gradient thresholds to generate a binary image (thresholding steps at lines # through # in `another_file.py`).  Here's an example of my output for this step.  (note: this is not actually from one of the test images)
+Color thresholding in HSV space + gradient thresholding using Sobel filter. 
+The script named "cv_play_with_HLS.py" allows to modify the color thresholds and Sobel thresholds with trackbars.
 
-![alt text][image3]
+Color thresholding: Observations
+* Vmin: high values seem to isolate the lines reasonably well. However a high value has a tendancy to suppress the parts of the lane that are further away.
+* S: thresholding on S does not seem to provide good results, as the lines are either plain white or plain yellow
+* Hmin: destroys the lines
+* Hmax: removes the sky and a portion of the gray component of the road. Same comment as for Vmin
+
+The following values produce reasonably good results with the test dataset present in the test_images folder:
+(hMin = 0 , sMin = 0, vMin = 190), (hMax = 81 , sMax = 255, vMax = 255)
+
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 

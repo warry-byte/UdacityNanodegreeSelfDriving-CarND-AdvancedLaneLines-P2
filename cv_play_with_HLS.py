@@ -4,12 +4,42 @@
 import cv2
 import numpy as np
 import glob
-import grad_amplitude as sob_mag
-import grad_direction as sob_dir
+import  grad_amplitude 
+import  grad_direction 
 
+#%% Methods
 def nothing(x):
     pass
 
+
+def image_processing_pipeline(input_img, 
+                              sobel_lower,
+                              sobel_upper,
+                              color_lower, 
+                              color_upper, 
+                              color_conversion=cv2.COLOR_BGR2HSV):
+    ''' 
+    Image processing pipeline
+    '''
+    # color thresholding
+    color_img = cv2.cvtColor(input_img, color_conversion)
+    color_mask = cv2.inRange(color_img, color_lower, color_upper)
+    color_masked_img = cv2.bitwise_and(input_img, input_img, mask=color_mask)
+    
+    # gradient magnitude filtering using sobel
+    sob_thresh_mag_min = sobel_lower[0]
+    sob_thresh_dir_min = sobel_lower[1]
+    sob_thresh_mag_max = sobel_upper[0]
+    sob_thresh_dir_max = sobel_upper[1]
+    result_mag_bin = grad_amplitude.mag_thresh(color_masked_img, thresh=(sob_thresh_mag_min, sob_thresh_mag_max))  # [0, 1]
+            
+    # gradient direction filtering - USE COLOR FILTERED IMAGE and bitwise-AND mask with magnitude
+    result_dir_bin = grad_direction.dir_thresh(color_masked_img, thresh=(sob_thresh_dir_min, sob_thresh_dir_max)) 
+    
+    final_mask = result_mag_bin.astype(np.uint8) & result_dir_bin.astype(np.uint8)
+    output_img = cv2.bitwise_or(color_masked_img, color_masked_img, mask=final_mask )
+    
+    return output_img
 
 #%% Init
 trackbar_fig_name = 'HSV_val'
@@ -86,28 +116,36 @@ while(1):
     sob_thresh_dir_max = cv2.getTrackbarPos('Sob Dir Max', trackbar_fig_name) * np.pi/180 # scale to first quadrant angle
 
     # Set minimum and maximum HSV values to display
-    lower = np.array([hMin, sMin, vMin])
-    upper = np.array([hMax, sMax, vMax])
+    color_lower = np.array([hMin, sMin, vMin])
+    color_upper = np.array([hMax, sMax, vMax])
+    sobel_lower = np.array([sob_thresh_mag_min, sob_thresh_dir_min])
+    sobel_upper = np.array([sob_thresh_mag_max, sob_thresh_dir_max])
 
     # Convert images to HSV format, and apply color and sobel thresholds
     # Detection pipeline: 
     for i in range(len(image_list)):
-        # color thresholding
-        hsv = cv2.cvtColor(image_list[i], cv2.COLOR_BGR2HSV)
-        mask = cv2.inRange(hsv, lower, upper)
-        color_thresh = cv2.bitwise_and(image_list[i], image_list[i], mask=mask)
         
-        # gradient magnitude filtering using sobel
-        result_mag_bin = sob_mag.mag_thresh(color_thresh, thresh=(sob_thresh_mag_min, sob_thresh_mag_max))  # [0, 1]
+        res = image_processing_pipeline(image_list[i], 
+                                  sobel_lower, 
+                                  sobel_upper, 
+                                  color_lower, 
+                                  color_upper)
+        # # color thresholding
+        # hsv = cv2.cvtColor(image_list[i], cv2.COLOR_BGR2HSV)
+        # mask = cv2.inRange(hsv, color_lower, color_upper)
+        # color_thresh = cv2.bitwise_and(image_list[i], image_list[i], mask=mask)
+        
+        # # gradient magnitude filtering using sobel
+        # result_mag_bin = sob_mag.mag_thresh(color_thresh, thresh=(sob_thresh_mag_min, sob_thresh_mag_max))  # [0, 1]
                 
-        # gradient direction filtering - USE COLOR FILTERED IMAGE and bitwise-AND mask with magnitude
-        result_dir_bin = sob_dir.dir_thresh(color_thresh, thresh=(sob_thresh_dir_min, sob_thresh_dir_max)) 
+        # # gradient direction filtering - USE COLOR FILTERED IMAGE and bitwise-AND mask with magnitude
+        # result_dir_bin = sob_dir.dir_thresh(color_thresh, thresh=(sob_thresh_dir_min, sob_thresh_dir_max)) 
         
-        final_mask = result_mag_bin.astype(np.uint8) & result_dir_bin.astype(np.uint8)
-        result = cv2.bitwise_and(color_thresh, color_thresh, mask=final_mask )
+        # final_mask = result_mag_bin.astype(np.uint8) & result_dir_bin.astype(np.uint8)
+        # result = cv2.bitwise_or(src1, src2)(color_thresh, color_thresh, mask=final_mask )
         
         # Display result images
-        cv2.imshow(test_images[i], result) # figure name was set to the relative path name # [0, 254]
+        cv2.imshow(test_images[i], res) # figure name was set to the relative path name # [0, 254]
         
         
 
