@@ -59,6 +59,8 @@ To demonstrate this step, I will describe how I apply the distortion correction 
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
+##### Color thresholding
+
 Color thresholding in HSV space + gradient thresholding using Sobel filter. 
 The script named "cv_play_with_HLS.py" allows to modify the color thresholds and Sobel thresholds with trackbars.
 
@@ -71,6 +73,13 @@ Color thresholding: Observations
 The following values produce reasonably good results with the test dataset present in the test_images folder:
 (hMin = 0 , sMin = 0, vMin = 190), (hMax = 81 , sMax = 255, vMax = 255)
 
+Color thresholding processing time: about 2 ms (ballpark value - might depend on the chosen thresholding)
+
+##### Gradient filtering
+Magnitude threshold: takes about 16 ms to run
+Direction threshold: takes about 27 ms to run --> unable to be used for real-time acquisition
+
+Assessing the use of x and y thresholds only:
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 

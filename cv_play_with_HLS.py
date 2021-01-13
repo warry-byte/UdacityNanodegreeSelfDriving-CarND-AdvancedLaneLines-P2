@@ -6,6 +6,7 @@ import numpy as np
 import glob
 import  grad_amplitude 
 import  grad_direction 
+import time
 
 #%% Methods
 def nothing(x):
@@ -31,10 +32,12 @@ def image_processing_pipeline(input_img,
     sob_thresh_dir_min = sobel_lower[1]
     sob_thresh_mag_max = sobel_upper[0]
     sob_thresh_dir_max = sobel_upper[1]
-    result_mag_bin = grad_amplitude.mag_thresh(color_masked_img, thresh=(sob_thresh_mag_min, sob_thresh_mag_max))  # [0, 1]
+    result_mag_bin = grad_amplitude.mag_thresh(color_masked_img, 
+                                               thresh=(sob_thresh_mag_min, sob_thresh_mag_max))  # [0, 1]
             
     # gradient direction filtering - USE COLOR FILTERED IMAGE and bitwise-AND mask with magnitude
-    result_dir_bin = grad_direction.dir_thresh(color_masked_img, thresh=(sob_thresh_dir_min, sob_thresh_dir_max)) 
+    result_dir_bin = grad_direction.dir_thresh(color_masked_img, 
+                                               thresh=(sob_thresh_dir_min, sob_thresh_dir_max)) 
     
     final_mask = result_mag_bin.astype(np.uint8) & result_dir_bin.astype(np.uint8)
     output_img = cv2.bitwise_or(color_masked_img, color_masked_img, mask=final_mask )
@@ -53,30 +56,23 @@ cv2.namedWindow(trackbar_fig_name, cv2.WINDOW_GUI_EXPANDED)
 
 # Create trackbars for color change
 # Hue is from 0-179 for Opencv
-cv2.createTrackbar('HMin', trackbar_fig_name, 0, 255, nothing)
-cv2.createTrackbar('SMin', trackbar_fig_name, 0, 255, nothing)
-cv2.createTrackbar('VMin', trackbar_fig_name, 0, 255, nothing)
-cv2.createTrackbar('HMax', trackbar_fig_name, 0, 255, nothing)
-cv2.createTrackbar('SMax', trackbar_fig_name, 0, 255, nothing)
-cv2.createTrackbar('VMax', trackbar_fig_name, 0, 255, nothing)
-cv2.createTrackbar('Sob Mag Min', trackbar_fig_name, 0, 255, nothing)
-cv2.createTrackbar('Sob Mag Max', trackbar_fig_name, 0, 255, nothing)
-cv2.createTrackbar('Sob Dir Min', trackbar_fig_name, 0, 90, nothing)
-cv2.createTrackbar('Sob Dir Max', trackbar_fig_name, 0, 90, nothing)
+trackbar_names = ['HMin', 'SMin', 'VMin', 
+                  'HMax', 'SMax', 'VMax', 
+                  'Sob Mag Min', 'Sob Mag Max', 
+                  'Sob Dir Min', 'Sob Dir Max']
 
-# Set default value for Max HSV trackbars
-# TODO load value from pickle
-cv2.setTrackbarPos('HMin', trackbar_fig_name, 0)
-cv2.setTrackbarPos('SMin', trackbar_fig_name, 0)
-cv2.setTrackbarPos('VMin', trackbar_fig_name, 0)
-cv2.setTrackbarPos('Sob Mag Min', trackbar_fig_name, 0)
-cv2.setTrackbarPos('Sob Dir Min', trackbar_fig_name, 0)
-
-cv2.setTrackbarPos('HMax', trackbar_fig_name, 255)
-cv2.setTrackbarPos('SMax', trackbar_fig_name, 255)
-cv2.setTrackbarPos('VMax', trackbar_fig_name, 255)
-cv2.setTrackbarPos('Sob Mag Max', trackbar_fig_name, 255)
-cv2.setTrackbarPos('Sob Dir Max', trackbar_fig_name, 90)
+for t in range(0, len(trackbar_names)-1):
+    if('Sob Dir' in trackbar_names[t]):
+        max_trackbar_value = 90
+    else:
+        max_trackbar_value = 255
+    
+    cv2.createTrackbar(trackbar_names[t], trackbar_fig_name, 0, max_trackbar_value, nothing)
+    
+    if('Max' in trackbar_names[t]):
+        cv2.setTrackbarPos(trackbar_names[t], trackbar_fig_name, max_trackbar_value)
+    else: # Min value is all 0 - to be changed later if implementing pickling of the values 
+        cv2.setTrackbarPos(trackbar_names[t], trackbar_fig_name, 0)
 
 # Initialize HSV min/max values
 hMin = sMin = vMin = hMax = sMax = vMax = 0
@@ -103,7 +99,7 @@ for f in test_images:
 
 #%% While 1 loop: modify all images according to HSV trackbars 
 while(1):
-    # Get current positions of all trackbars
+    # Get current positions of all trackbars    
     hMin = cv2.getTrackbarPos('HMin', trackbar_fig_name)
     sMin = cv2.getTrackbarPos('SMin', trackbar_fig_name)
     vMin = cv2.getTrackbarPos('VMin', trackbar_fig_name)
@@ -114,7 +110,7 @@ while(1):
     sob_thresh_mag_max = cv2.getTrackbarPos('Sob Mag Max', trackbar_fig_name)
     sob_thresh_dir_min = cv2.getTrackbarPos('Sob Dir Min', trackbar_fig_name) * np.pi/180
     sob_thresh_dir_max = cv2.getTrackbarPos('Sob Dir Max', trackbar_fig_name) * np.pi/180 # scale to first quadrant angle
-
+    
     # Set minimum and maximum HSV values to display
     color_lower = np.array([hMin, sMin, vMin])
     color_upper = np.array([hMax, sMax, vMax])
@@ -124,6 +120,8 @@ while(1):
     # Convert images to HSV format, and apply color and sobel thresholds
     # Detection pipeline: 
     for i in range(len(image_list)):
+        
+        start_time = time.time()
         
         res = image_processing_pipeline(image_list[i], 
                                   sobel_lower, 
@@ -145,7 +143,11 @@ while(1):
         # result = cv2.bitwise_or(src1, src2)(color_thresh, color_thresh, mask=final_mask )
         
         # Display result images
+        print("--- Pipeline for one image: %s seconds ---" % (time.time() - start_time))
+        
+        start_time = time.time()
         cv2.imshow(test_images[i], res) # figure name was set to the relative path name # [0, 254]
+        print("--- Show one image: %s seconds ---" % (time.time() - start_time))
         
         
 
