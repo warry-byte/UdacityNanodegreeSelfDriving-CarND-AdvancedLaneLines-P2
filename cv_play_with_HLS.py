@@ -57,8 +57,8 @@ cv2.namedWindow(trackbar_fig_name, cv2.WINDOW_GUI_EXPANDED)
 
 # Create trackbars for color change
 # Hue is from 0-179 for Opencv
-trackbar_names = ['HMin', 'SMin', 'VMin', 
-                  'HMax', 'SMax', 'VMax', 
+trackbar_names = ['hMin', 'sMin', 'vMin', 
+                  'hMax', 'sMax', 'vMax', 
                   'Sob Mag Min', 'Sob Mag Max', 
                   'Sob Dir Min', 'Sob Dir Max']
 
@@ -110,23 +110,22 @@ for f in test_images:
 
 #%% While 1 loop: modify all images according to HSV trackbars 
 while(1):
-    # Get current positions of all trackbars    
-    hMin = cv2.getTrackbarPos('HMin', trackbar_fig_name)
-    sMin = cv2.getTrackbarPos('SMin', trackbar_fig_name)
-    vMin = cv2.getTrackbarPos('VMin', trackbar_fig_name)
-    hMax = cv2.getTrackbarPos('HMax', trackbar_fig_name)
-    sMax = cv2.getTrackbarPos('SMax', trackbar_fig_name)
-    vMax = cv2.getTrackbarPos('VMax', trackbar_fig_name)
-    sob_thresh_mag_min = cv2.getTrackbarPos('Sob Mag Min', trackbar_fig_name)
-    sob_thresh_mag_max = cv2.getTrackbarPos('Sob Mag Max', trackbar_fig_name)
-    sob_thresh_dir_min = cv2.getTrackbarPos('Sob Dir Min', trackbar_fig_name) * np.pi/180
-    sob_thresh_dir_max = cv2.getTrackbarPos('Sob Dir Max', trackbar_fig_name) * np.pi/180 # scale to first quadrant angle
+    
+    # TODO should be part of a class - HSV color class or something
+    def get_param(param_name):
+        global trackbar_names
+        global image_param
+        
+        ind = trackbar_names.index(param_name) # look for parameter name into parameter list
+        val = image_param[ind].value # get value of parameter
+        
+        return val
     
     # Set minimum and maximum HSV values to display
-    color_lower = np.array([hMin, sMin, vMin])
-    color_upper = np.array([hMax, sMax, vMax])
-    sobel_lower = np.array([sob_thresh_mag_min, sob_thresh_dir_min])
-    sobel_upper = np.array([sob_thresh_mag_max, sob_thresh_dir_max])
+    color_lower = np.array([get_param('hMin'), get_param('sMin'), get_param('vMin')])
+    color_upper = np.array([get_param('hMax'), get_param('sMax'), get_param('vMax')])
+    sobel_lower = np.array([get_param('Sob Mag Min'), get_param('Sob Dir Min')])
+    sobel_upper = np.array([get_param('Sob Mag Max'), get_param('Sob Dir Max')])
 
     # Convert images to HSV format, and apply color and sobel thresholds
     # Detection pipeline: 
