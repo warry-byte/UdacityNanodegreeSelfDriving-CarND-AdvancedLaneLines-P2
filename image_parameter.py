@@ -17,22 +17,24 @@ class ImageParameter():
         self.__name = parameter_name
         self.__min_value = min_value
         self.__max_value = max_value
-        self.__value = start_value
         
-        cv2.createTrackbar(self.name, 
-                           self.window_name, 
-                           self.min_value, 
-                           self.max_value, 
+        cv2.createTrackbar(self.__name, 
+                           self.__window_name, 
+                           self.__min_value, 
+                           self.__max_value, 
                            self.update)
+        
+        self.value = start_value  # calling setter function - must be called AFTER trackbar is created, as it will call the setTrackbarPos method
         
     @property
     def value(self):
         return self.__value    
     
+    
     @value.setter
     def value(self, val):
         '''
-        Called when manually setting the position of the trackbar
+        Called when manually setting the position of the trackbar.
 
         Parameters
         ----------
@@ -48,6 +50,7 @@ class ImageParameter():
         
         # not sure if needed if setTrackbarPos triggers a callback 
         self.__value = cv2.getTrackbarPos(self.__name, self.__window_name)  # the trackbar object checks for min and max values 
+        
         
     def update(self, value): 
         '''

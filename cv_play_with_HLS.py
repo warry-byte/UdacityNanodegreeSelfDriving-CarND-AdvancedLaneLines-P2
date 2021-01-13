@@ -7,6 +7,7 @@ import glob
 import  grad_amplitude 
 import  grad_direction 
 import time
+import image_parameter 
 
 #%% Methods
 def nothing(x):
@@ -61,19 +62,29 @@ trackbar_names = ['HMin', 'SMin', 'VMin',
                   'Sob Mag Min', 'Sob Mag Max', 
                   'Sob Dir Min', 'Sob Dir Max']
 
-for t in range(0, len(trackbar_names)-1):
+image_param = []
+
+# Create image parameter objects with their trackbars
+for t in range(0, len(trackbar_names)):
     if('Sob Dir' in trackbar_names[t]):
         max_trackbar_value = 90
     else:
         max_trackbar_value = 255
     
-    cv2.createTrackbar(trackbar_names[t], trackbar_fig_name, 0, max_trackbar_value, nothing)
-    
     if('Max' in trackbar_names[t]):
-        cv2.setTrackbarPos(trackbar_names[t], trackbar_fig_name, max_trackbar_value)
+        current_value = max_trackbar_value
     else: # Min value is all 0 - to be changed later if implementing pickling of the values 
-        cv2.setTrackbarPos(trackbar_names[t], trackbar_fig_name, 0)
-
+        current_value = 0
+        
+    i = image_parameter.ImageParameter(trackbar_fig_name,
+                                       parameter_name=trackbar_names[t], 
+                                       min_value=0, 
+                                       max_value=max_trackbar_value, 
+                                       start_value=current_value)
+                                       
+    image_param.append(i) # append to image parameters list
+    
+    
 # Initialize HSV min/max values
 hMin = sMin = vMin = hMax = sMax = vMax = 0
 phMin = psMin = pvMin = phMax = psMax = pvMax = 0
@@ -121,7 +132,7 @@ while(1):
     # Detection pipeline: 
     for i in range(len(image_list)):
         
-        start_time = time.time()
+        # start_time = time.time()
         
         res = image_processing_pipeline(image_list[i], 
                                   sobel_lower, 
@@ -143,11 +154,11 @@ while(1):
         # result = cv2.bitwise_or(src1, src2)(color_thresh, color_thresh, mask=final_mask )
         
         # Display result images
-        print("--- Pipeline for one image: %s seconds ---" % (time.time() - start_time))
+        # print("--- Pipeline for one image: %s seconds ---" % (time.time() - start_time))
         
-        start_time = time.time()
+        # start_time = time.time()
         cv2.imshow(test_images[i], res) # figure name was set to the relative path name # [0, 254]
-        print("--- Show one image: %s seconds ---" % (time.time() - start_time))
+        # print("--- Show one image: %s seconds ---" % (time.time() - start_time))
         
         
 
