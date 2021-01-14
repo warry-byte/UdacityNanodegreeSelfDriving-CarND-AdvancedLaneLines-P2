@@ -23,8 +23,8 @@ class ImageChannel(ABC):
     def __init__(self, 
                  bgr_img,
                  window_name, 
-                 limits=np.array([0, 255]),  
-                 bounds=np.array([0, 255])):
+                 limits=[0, 255],  
+                 bounds=[0, 255]):
                 
         '''
         Common constructor for all image channel derived classes.
@@ -54,7 +54,7 @@ class ImageChannel(ABC):
         '''
         self.__bgr = bgr_img
         self.__window_name = window_name
-        self.__limits = limits  # set the parameters absolute limits
+        self.__limits = limits  # set the parameters absolute limits - immuable
         
         # Create trackbars for min and max values of image parameter
         # The name of the child class will be shown and give the name of the trackbar thanks to the name class attribute
@@ -70,28 +70,34 @@ class ImageChannel(ABC):
                            self.__limits[1], 
                            self.update_max)  
         
-        # self.bounds = bounds  # set the current bounds of the channel - calling setter function - must be called AFTER trackbar is created, as it will call the setTrackbarPos method
-        
         self.__values = np.zeros((bgr_img.shape[0], bgr_img.shape[1]))  # by default, the values will be an nd-array of shape (N, M)
         self.__value_mask = np.empty_like(self.__values, dtype = bool)
-        self.__bounds = bounds
-        
-        # self.__initial_values = self.conversion_from_bgr(self.__bgr)
-        
-        self.update(self.__bgr, self.__bounds)
+        self.__bounds = np.array(bounds)
+        self.update_bgr(bgr_img) # this will translate the bgr data into this channel's data
+        self.update_min(self.__bounds[0])  # a bit redundant
+        self.update_max(self.__bounds[1])
         
     def update_min(self, pos):
-        self.__bounds[0] = pos
-        self.update(self.__bgr, self.bounds)
+        if(pos < self.__bounds[1]): # this will ensure that the trackbar does not move if the min position is equal or high than the high position
+            cv2.setTrackbarPos(self.__class__.__name__ + 'min', self.__window_name, pos)
+            self.__bounds[0] = pos
+            self.update_channel()
         
     def update_max(self, pos):
-        self.__bounds[1] = pos
-        self.update(self.__bgr, self.bounds)
+        if(pos > self.__bounds[0]):
+            cv2.setTrackbarPos(self.__class__.__name__ + 'max', self.__window_name, pos)
+            self.__bounds[1] = pos
+            self.update_channel()
+    
+    # TODO set as property for the bgr member
+    def update_bgr(self, input_bgr_img):
+        self.__bgr = input_bgr_img # update initial bgr array to be used when filtering the image to retrieve channel
+        self.update_channel() # update channel data after the image has been changed
         
         
-    def update(self, input_bgr_img, bounds_values): 
+    def update_channel(self): 
         '''
-        Callback function called when the image channel needs to be updated.
+        Callback function called when the image channel needs to be updated (new bounds).
         Updating the current channel values to match the input BGR image (e.g.: If current channel is H, input image will be converted to Hue)
 
         Returns
@@ -99,38 +105,31 @@ class ImageChannel(ABC):
         None.
 
         '''
-        self.__bgr = input_bgr_img # update initial bgr array to be used when filtering the image to retrieve channel
-        self.__initial_values = self.conversion_from_bgr(input_bgr_img) # re-initialize initial values on which the current channel will work
+        self.__initial_values = self.conversion_from_bgr(self.__bgr) # re-initialize initial values on which the current channel will work
         self.__values = self.__initial_values  # the values member needs to be initialized to initial values before filtering, otherwise it is always 0!
-        self.__bounds = bounds_values  
+        self.filter_data()
         
 
-    def bounds(self, lower, upper):
+    def filter_data(self):
         '''
-        Called when manually setting the position of the trackbar. The methods checks if the bounds do not overlap each other (upper bound should always be higher than the lower one)
+        The methods checks if the bounds do not overlap each other (upper bound should always be higher than the lower one)
         The method then filters the self.__initial_values field and store the result in the self.values present in the self.values field.
+        The __bounds member must be updated prior to calling this method.
 
         Parameters
         ----------
-        bound_values : 2D nd-array
-            Min and max values of the current image channel. 
+        None.
 
         Returns
         -------
         None.
 
-        '''
-        
-        # Move trackbar only if the lower trackbar is lower than the upper one
-        if(bound_values[0] < bound_values[1]):
-            cv2.setTrackbarPos(self.__class__.__name__ + 'min', self.__window_name, bound_values[0])
-            cv2.setTrackbarPos(self.__class__.__name__ + 'max', self.__window_name, bound_values[1])
-            
-            # Filter initial values
-            self.__value_mask = ((self.__initial_values >= bound_values[0]) & 
-                          (self.__initial_values <= bound_values[1]))
-            self.__values[ self.__value_mask == False ] = 0  # Zero-out all elements that are not in the range given by the bounds
-            self.__bounds = bound_values
+        '''        
+        # Filter initial values
+        self.__value_mask = ((self.__initial_values >= self.__bounds[0]) & 
+                      (self.__initial_values <= self.__bounds[1]))
+        self.__values[ self.__value_mask == False ] = 0  # Zero-out all elements that are not in the range given by the bounds
+
         
     @property
     def values(self):

@@ -13,8 +13,40 @@ class H(ImageChannel):
     
         super().__init__(bgr_img,
                          window_name, 
-                         limits=(0, 255),  
-                         bounds=(0, 255) )
+                         limits=limits,  
+                         bounds=bounds )
+        
+        # super.__initial_values = self.conversion_from_bgr(bgr_img) # not needed - see init constructor of parent class
+
+    def conversion_from_bgr(self, bgr_img):
+        '''
+        Abstract method to get current channel from an input BGR image. 
+        This method must be reimplemented for all ImageChannel child classes.
+
+        Parameters
+        ----------
+        bgr_img : nd-array, shape (W, H, 3)
+            BGR input image.
+
+        Returns
+        -------
+        Image channel nd-array, shape (W, H, 3).
+
+        '''
+        return color_hue(bgr_img)
+    
+class S(ImageChannel):
+
+    def __init__(self, 
+             bgr_img,
+             window_name, 
+             limits=(0, 255),  
+             bounds=(0, 255) ):
+    
+        super().__init__(bgr_img,
+                         window_name, 
+                         limits=limits,  
+                         bounds=bounds )
         
         # super.__initial_values = self.conversion_from_bgr(bgr_img) # not needed - see init constructor of parent class
 
