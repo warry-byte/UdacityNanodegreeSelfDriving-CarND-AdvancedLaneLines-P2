@@ -3,21 +3,8 @@
 from image_channel import ImageChannel
 import cv2
 
-class H(ImageChannel):
-
-    def __init__(self, 
-             bgr_img,
-             window_name, 
-             limits=(0, 255),  
-             bounds=(0, 255) ):
-    
-        super().__init__(bgr_img,
-                         window_name, 
-                         limits=limits,  
-                         bounds=bounds )
+class H(ImageChannel):   
         
-        # super.__initial_values = self.conversion_from_bgr(bgr_img) # not needed - see init constructor of parent class
-
     def conversion_from_bgr(self, bgr_img):
         '''
         Abstract method to get current channel from an input BGR image. 
@@ -36,20 +23,7 @@ class H(ImageChannel):
         return color_hue(bgr_img)
     
 class S(ImageChannel):
-
-    def __init__(self, 
-             bgr_img,
-             window_name, 
-             limits=(0, 255),  
-             bounds=(0, 255) ):
-    
-        super().__init__(bgr_img,
-                         window_name, 
-                         limits=limits,  
-                         bounds=bounds )
         
-        # super.__initial_values = self.conversion_from_bgr(bgr_img) # not needed - see init constructor of parent class
-
     def conversion_from_bgr(self, bgr_img):
         '''
         Abstract method to get current channel from an input BGR image. 
@@ -65,7 +39,102 @@ class S(ImageChannel):
         Image channel nd-array, shape (W, H, 3).
 
         '''
-        return color_hue(bgr_img)
+        return color_saturation(bgr_img)
+    
+class V(ImageChannel):
+        
+    def conversion_from_bgr(self, bgr_img):
+        '''
+        Abstract method to get current channel from an input BGR image. 
+        This method must be reimplemented for all ImageChannel child classes.
+
+        Parameters
+        ----------
+        bgr_img : nd-array, shape (W, H, 3)
+            BGR input image.
+
+        Returns
+        -------
+        Image channel nd-array, shape (W, H, 3).
+
+        '''
+        return color_value(bgr_img)
+    
+class R(ImageChannel):
+        
+    def conversion_from_bgr(self, bgr_img):
+        '''
+        Abstract method to get current channel from an input BGR image. 
+        This method must be reimplemented for all ImageChannel child classes.
+
+        Parameters
+        ----------
+        bgr_img : nd-array, shape (W, H, 3)
+            BGR input image.
+
+        Returns
+        -------
+        Image channel nd-array, shape (W, H, 3).
+
+        '''
+        return color_red(bgr_img)
+    
+class G(ImageChannel):
+        
+    def conversion_from_bgr(self, bgr_img):
+        '''
+        Abstract method to get current channel from an input BGR image. 
+        This method must be reimplemented for all ImageChannel child classes.
+
+        Parameters
+        ----------
+        bgr_img : nd-array, shape (W, H, 3)
+            BGR input image.
+
+        Returns
+        -------
+        Image channel nd-array, shape (W, H, 3).
+
+        '''
+        return color_green(bgr_img)
+    
+class B(ImageChannel):
+        
+    def conversion_from_bgr(self, bgr_img):
+        '''
+        Abstract method to get current channel from an input BGR image. 
+        This method must be reimplemented for all ImageChannel child classes.
+
+        Parameters
+        ----------
+        bgr_img : nd-array, shape (W, H, 3)
+            BGR input image.
+
+        Returns
+        -------
+        Image channel nd-array, shape (W, H, 3).
+
+        '''
+        return color_blue(bgr_img)
+    
+class L(ImageChannel):
+        
+    def conversion_from_bgr(self, bgr_img):
+        '''
+        Abstract method to get current channel from an input BGR image. 
+        This method must be reimplemented for all ImageChannel child classes.
+
+        Parameters
+        ----------
+        bgr_img : nd-array, shape (W, H, 3)
+            BGR input image.
+
+        Returns
+        -------
+        Image channel nd-array, shape (W, H, 3).
+
+        '''
+        return color_lightness(bgr_img)
     
     
 # Color utilities methods
