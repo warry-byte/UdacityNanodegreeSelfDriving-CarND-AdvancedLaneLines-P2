@@ -142,7 +142,7 @@ class ImageChannel(ABC):
                       (self.__initial_values <= self.__bounds[1]))
         self.__values[ self.__value_mask == False ] = 0  # Zero-out all elements that are not in the range given by the bounds
 
-        
+         
     @property
     def values(self):
         return self.__values

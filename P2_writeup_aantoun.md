@@ -69,9 +69,10 @@ Color thresholding: Observations
 * S: thresholding on S does not seem to provide good results, as the lines are either plain white or plain yellow
 * Hmin: destroys the lines
 * Hmax: removes the sky and a portion of the gray component of the road. Same comment as for Vmin
+* R values: seem to delimitate the lines well. 
 
-The following values produce reasonably good results with the test dataset present in the test_images folder:
-(hMin = 0 , sMin = 0, vMin = 190), (hMax = 81 , sMax = 255, vMax = 255)
+test1.jpg, test2.jpg:
+R values: (112, 255) (to leave as much lines as possible)
 
 Color thresholding processing time: about 2 ms (ballpark value - might depend on the chosen thresholding)
 
@@ -79,7 +80,11 @@ Color thresholding processing time: about 2 ms (ballpark value - might depend on
 Magnitude threshold: takes about 16 ms to run
 Direction threshold: takes about 27 ms to run --> unable to be used for real-time acquisition
 
-Assessing the use of x and y thresholds only:
+Gradient and color filtering logic: grad_mask = (GradX & GradY) | (Grad_mag & Grad_dir) 
+Final image: R & grad_mask
+
+Observations:
+- Results might be improved by taking the R channel as input image for the gradient filtering. This will be done in the final pipeline.
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 

@@ -2,6 +2,7 @@
 
 from image_channel import ImageChannel
 import cv2
+import numpy as np
 
 class H(ImageChannel):   
         
@@ -213,3 +214,21 @@ def color_lightness(bgr_img):
     hls = bgr_to_hls(bgr_img)
     
     return hls[:,:,1]
+
+def mask_image(img, bin_mask):
+    res = np.copy(img)
+    res[ bin_mask == False ] = 0
+    
+    return res
+
+def mask_to_img_8bit(mask):
+    '''
+    Get the input binary mask array as uint8 Numpy array. Elements of the returned array will be 0 (False) or 255 (True)
+
+    Returns
+    -------
+    2D array, dtype uint8
+        Array containing values indicating the values where current image channel is within the provided bounds (0 or 255).
+
+    '''
+    return (mask * 255).astype(np.uint8)
