@@ -117,7 +117,7 @@ class ImageChannel(ABC):
         None.
 
         '''
-        self.__initial_values = self.conversion_from_bgr(self.__bgr) # re-initialize initial values on which the current channel will work
+        self.__initial_values = self.conversion_from_bgr(self.bgr) # re-initialize initial values on which the current channel will work
         self.__values = np.copy(self.__initial_values)  # the values member needs to be initialized to initial values before filtering, otherwise it is always 0!
         self.filter_data()
         
@@ -160,6 +160,18 @@ class ImageChannel(ABC):
     @property
     def bounds(self):
         return self.__bounds # needed by children classes
+    
+    @property
+    def bgr(self):
+        return self.__bgr
+    
+    @property
+    def limits(self):
+        return self.__limits
+    
+    @property
+    def window_name(self):
+        return self.__window_name
     
     @abstractmethod
     def conversion_from_bgr(self, bgr_img):
