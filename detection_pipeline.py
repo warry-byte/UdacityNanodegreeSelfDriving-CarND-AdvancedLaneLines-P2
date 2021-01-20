@@ -8,7 +8,7 @@ import camera as cam
 import colors_utilities as cu
 import edge_detection_utilities as edu
 import image_utilities as iu
-
+import lane_lines_utilities as llu
 checkerboard_x_size = 9
 checkerboard_y_size = 6
 checkerboard_images_folder = 'camera_cal/'
@@ -51,7 +51,7 @@ def pipeline(input_img):
     # Perspective transform
     warp_img = iu.warp_test_images(filt_img)
     
-    output_img = warp_img # TODO remove
+    output_img = llu.fit_polynomial(warp_img)
     
     return output_img
 

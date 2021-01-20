@@ -23,11 +23,11 @@ def warp_test_images(img):
     # Compute and apply perpective transform
     img_size = (img.shape[1], img.shape[0])
     
-    # s = np.float32(
-    # [[(img_size[0] / 2) - 55, img_size[1] / 2 + 100],
-    # [((img_size[0] / 6) - 10), img_size[1]],
-    # [(img_size[0] * 5 / 6) + 60, img_size[1]],
-    # [(img_size[0] / 2 + 55), img_size[1] / 2 + 100]])
+    s = np.float32(
+    [[(img_size[0] / 2) - 70, img_size[1] / 2 + 100],
+    [((img_size[0] / 6) - 10), img_size[1]],
+    [(img_size[0] * 5 / 6) + 60, img_size[1]],
+    [(img_size[0] / 2 + 70), img_size[1] / 2 + 100]])
     
     # New points calculated with straight_lines1.jpg
     s = np.float32([[285, 670],

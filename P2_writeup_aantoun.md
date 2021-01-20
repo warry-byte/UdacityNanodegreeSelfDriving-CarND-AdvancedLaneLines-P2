@@ -35,6 +35,24 @@ The goals / steps of this project are the following:
 
 You're reading it!
 
+### List of files
+#### Detection pipeline
+- detection_pipeline.py: entry point of the project. Contains the whole pipeline to process images and eventually find lane lines polynomials. 
+
+#### Utility files
+- camera.py: contains camera information and calibration methods. 
+- image_utilities.py: warping methods
+- image_channel.py: Abstract parent class for all image channels (colors, gradients). It contains all the logic to handle channels thresholding and the user interface on the form of OpenCV trackbars for min and max thresholds. 
+
+Related files: 
+- color_utilities.py: contains color channel classes and methods to get all colors (H, S, V, L, and R G B). 
+- edge_detection_utilities.py: contains class FilterParameter (inherits from ImageChannel), and child classes Sobel- (Sobel gradients, etc)
+
+- lane_line_utilities.py: contains all the processing to find the line polynomials
+
+#### Test files
+- test_color_utilities.py: Allows to use color and sobel classes to combine the different colors together. 
+
 ### Camera Calibration
 
 #### 1. Briefly state how you computed the camera matrix and distortion coefficients. Provide an example of a distortion corrected calibration image.
