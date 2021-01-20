@@ -24,7 +24,8 @@ class ImageChannel(ABC):
                  bgr_img,
                  window_name, 
                  limits=[0, 255],  
-                 bounds=[0, 255]):
+                 bounds=[0, 255],
+                 create_trackbar=True):
                 
         '''
         Common constructor for all image channel derived classes.
@@ -46,6 +47,8 @@ class ImageChannel(ABC):
             Absolute limits of current image channel. Default is (0, 255). 
         bounds : 1-D nd-array, optional
             Bounds of current image channel. Default is (0, 255). bounds[0] will be associated with trackbar1, and bounds[1] with the second trackbar
+        create_trackbar : Binary
+            Specify if the trackbars need to be created for current image.
 
         Returns
         -------
@@ -56,19 +59,23 @@ class ImageChannel(ABC):
         self.__window_name = window_name
         self.__limits = limits  # set the parameters absolute limits - immuable
         
-        # Create trackbars for min and max values of image parameter
-        # The name of the child class will be shown and give the name of the trackbar thanks to the name class attribute
-        cv2.createTrackbar(self.__class__.__name__ + 'min', 
-                           self.__window_name, 
-                           self.__limits[0], 
-                           self.__limits[1], 
-                           self.update_min)  # pass the update method as callback when the user moves the trackbar
+        self.__contains_trackbars = create_trackbar
         
-        cv2.createTrackbar(self.__class__.__name__ + 'max', 
-                           self.__window_name, 
-                           self.__limits[0], 
-                           self.__limits[1], 
-                           self.update_max)  
+        if self.__contains_trackbars:
+            
+            # Create trackbars for min and max values of image parameter
+            # The name of the child class will be shown and give the name of the trackbar thanks to the name class attribute
+            cv2.createTrackbar(self.__class__.__name__ + 'min', 
+                               self.__window_name, 
+                               self.__limits[0], 
+                               self.__limits[1], 
+                               self.update_min)  # pass the update method as callback when the user moves the trackbar
+            
+            cv2.createTrackbar(self.__class__.__name__ + 'max', 
+                               self.__window_name, 
+                               self.__limits[0], 
+                               self.__limits[1], 
+                               self.update_max)  
         
         self.__values = np.zeros((bgr_img.shape[0], bgr_img.shape[1]))  # by default, the values will be an nd-array of shape (N, M)
         self.__value_mask = np.empty_like(self.__values, dtype = bool)
@@ -79,13 +86,15 @@ class ImageChannel(ABC):
         
     def update_min(self, pos):
         if(pos < self.__bounds[1]): # this will ensure that the trackbar does not move if the min position is equal or high than the high position
-            cv2.setTrackbarPos(self.__class__.__name__ + 'min', self.__window_name, pos)
+            if self.__contains_trackbars:
+                cv2.setTrackbarPos(self.__class__.__name__ + 'min', self.__window_name, pos)
             self.__bounds[0] = pos
             self.update_channel()
         
     def update_max(self, pos):
         if(pos > self.__bounds[0]):
-            cv2.setTrackbarPos(self.__class__.__name__ + 'max', self.__window_name, pos)
+            if self.__contains_trackbars:
+                cv2.setTrackbarPos(self.__class__.__name__ + 'max', self.__window_name, pos)
             self.__bounds[1] = pos
             self.update_channel()
     
@@ -94,6 +103,9 @@ class ImageChannel(ABC):
         self.__bgr = input_bgr_img # update initial bgr array to be used when filtering the image to retrieve channel
         self.update_channel() # update channel data after the image has been changed
         
+    @property
+    def bgr(self):
+        return self.__bgr
         
     def update_channel(self): 
         '''
@@ -145,7 +157,10 @@ class ImageChannel(ABC):
     def value_mask(self):
         return self.__value_mask
     
-        
+    @property
+    def bounds(self):
+        return self.__bounds # needed by children classes
+    
     @abstractmethod
     def conversion_from_bgr(self, bgr_img):
         pass        
