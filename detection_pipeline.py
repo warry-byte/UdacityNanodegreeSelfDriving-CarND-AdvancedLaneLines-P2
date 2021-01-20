@@ -5,12 +5,20 @@ import numpy as np
 import cv2
 import os
 import camera as cam
+import colors_utilities as cu
+import edge_detection_utilities as edu
+import image_utilities as iu
 
 checkerboard_x_size = 9
 checkerboard_y_size = 6
 checkerboard_images_folder = 'camera_cal/'
 calib_images_name_pattern = "calibration*.jpg"
 camera = None
+
+# Creating color channel and gradient objects
+img = cv2.imread('test_images/test2.jpg') # dummy image used to create the objects
+color_channel = cu.R(img, '', bounds=[112, 255], create_trackbar=False) # create R channel
+grad_x = edu.SobelX(img, '', bounds=[0, 52], create_trackbar=False)
     
 #%% Methods
 def pipeline(input_img):
@@ -28,20 +36,19 @@ def pipeline(input_img):
 
     '''
     
-    global camera
+    global camera, color_channel, grad_x
         
     # Undistort image
     undist_img = cv2.undistort(input_img, camera.mtx, camera.dist, None, camera.mtx)
     
-    # Threshold image in HSV space
-    # Set minimum and maximum HSV values to display
-    lower = np.array([0, 0, 180])
-    upper = np.array([70, 255, 255])
-
-    # Convert to HSV format and threshold with HSV mask (lower and upper values)
-    hsv = cv2.cvtColor(undist_img, cv2.COLOR_BGR2HSV)
-    mask = cv2.inRange(hsv, lower, upper)
-    output_img = cv2.bitwise_and(undist_img, undist_img, mask=mask)
+    # Update color channel and gradient channel with input image
+    color_channel.update_bgr(undist_img)
+    grad_x.update_bgr(undist_img)
+    
+    # final filtered image: color channel AND gradient channel
+    filt_img = cu.mask_image(color_channel.values, grad_x.value_mask)
+    
+    output_img = filt_img # TODO remove
     
     return output_img
 
@@ -59,8 +66,6 @@ if __name__ == '__main__':
                                  calib_images_name_pattern=calib_images_name_pattern, 
                                  checkerboard_x_size=checkerboard_x_size, 
                                  checkerboard_y_size=checkerboard_y_size)
-    
-    camera.calculate_intrinsics()
     
     #%% Analyze all files
     for f in test_images:

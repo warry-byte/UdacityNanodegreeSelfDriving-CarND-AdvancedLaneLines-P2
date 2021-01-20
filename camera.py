@@ -36,6 +36,8 @@ class CustomCamera():
         self.nx = checkerboard_x_size
         self.ny = checkerboard_y_size
         
+        self.calculate_intrinsics()
+        
     def calculate_intrinsics(self):
         '''
         Calculate camera intrinsics (mtx and dist) based on calibration images.

@@ -41,7 +41,7 @@ class FilterParameter(ImageChannel):
             cv2.createTrackbar(self.__class__.__name__ + '_kernel_size', 
                                window_name, 
                                1, 
-                               11, 
+                               21, 
                                self.update_kernel_size_member)    
             cv2.setTrackbarPos(self.__class__.__name__ + '_kernel_size', window_name, self.__kernel_size)
 

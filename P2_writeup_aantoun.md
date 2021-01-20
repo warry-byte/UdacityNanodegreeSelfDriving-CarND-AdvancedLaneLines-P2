@@ -39,8 +39,6 @@ You're reading it!
 
 #### 1. Briefly state how you computed the camera matrix and distortion coefficients. Provide an example of a distortion corrected calibration image.
 
-The code for this step is contained in the first code cell of the IPython notebook located in "./examples/example.ipynb" (or in lines # through # of the file called `some_file.py`).  
-
 I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image.  Thus, `objp` is just a replicated array of coordinates, and `objpoints` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image.  `imgpoints` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.  
 
 Note that images calibration1.jpg, calibration4.jpg and calibration5.jpg could not be used to calculate the distortion coefficients due to occluded points. 
@@ -80,11 +78,23 @@ Color thresholding processing time: about 2 ms (ballpark value - might depend on
 Magnitude threshold: takes about 16 ms to run
 Direction threshold: takes about 27 ms to run --> unable to be used for real-time acquisition
 
-Gradient and color filtering logic: grad_mask = (GradX & GradY) | (Grad_mag & Grad_dir) 
-Final image: R & grad_mask
+Exploration is done on the following pipeline:
+- Gradient and color filtering logic: grad_mask = (GradX & GradY) | (Grad_mag & Grad_dir) 
+- Final image: R & grad_mask
 
-Observations:
-- Results might be improved by taking the R channel as input image for the gradient filtering. This will be done in the final pipeline.
+Observations on test2.jpg:
+- Important loss of information in the image when filtering in y direction --> x filtering checks for gradients (edges) along X
+- Sobel magnification and direction kernel of more than 1 is unnecessary
+- Did not find grad mag and grad dir filtering outstanding
+- X gradient kernel size as high as possible. Not much difference above 11
+- Results might be improved by taking the R channel as input image for the gradient filtering
+
+Results: 
+- gradient and color filtering: GradX & R
+- Threshold values:
+	46, 255
+- Kernel value: 11
+
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
