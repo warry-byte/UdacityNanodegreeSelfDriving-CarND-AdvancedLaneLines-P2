@@ -106,7 +106,7 @@ class ImageChannel(ABC):
 
         '''
         self.__initial_values = self.conversion_from_bgr(self.__bgr) # re-initialize initial values on which the current channel will work
-        self.__values = self.__initial_values  # the values member needs to be initialized to initial values before filtering, otherwise it is always 0!
+        self.__values = np.copy(self.__initial_values)  # the values member needs to be initialized to initial values before filtering, otherwise it is always 0!
         self.filter_data()
         
 
