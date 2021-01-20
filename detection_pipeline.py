@@ -17,7 +17,7 @@ camera = None
 
 # Creating color channel and gradient objects
 img = cv2.imread('test_images/test2.jpg') # dummy image used to create the objects
-color_channel = cu.R(img, '', bounds=[112, 255], create_trackbar=False) # create R channel
+color_channel = cu.R(img, '', bounds= [223, 255], create_trackbar=False) # create R channel
 grad_x = edu.SobelX(img, '', bounds=[0, 52], create_trackbar=False)
     
 #%% Methods
@@ -48,7 +48,10 @@ def pipeline(input_img):
     # final filtered image: color channel AND gradient channel
     filt_img = cu.mask_image(color_channel.values, grad_x.value_mask)
     
-    output_img = filt_img # TODO remove
+    # Perspective transform
+    warp_img = iu.warp_test_images(filt_img)
+    
+    output_img = warp_img # TODO remove
     
     return output_img
 

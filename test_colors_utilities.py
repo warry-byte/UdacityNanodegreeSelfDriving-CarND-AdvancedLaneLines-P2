@@ -16,6 +16,20 @@ def switch_image(pos):
     global test_images, img
     
     img = cv2.imread(test_images[pos])
+    update_image_name(test_images[pos])
+    
+def update_image_name(txt):
+    global test_images, img
+    
+    # Text on image: display image name
+    font = cv2.FONT_HERSHEY_SIMPLEX  
+    org = (50, 50) 
+    fontScale = 1
+    color = (255, 0, 255) 
+    thickness = 2 # px
+    
+    # Display image name
+    cv2.putText(img, txt, org, font, fontScale, color, thickness, cv2.LINE_AA) 
     
 #%% Create main window
 trackbar_fig_name = 'Image channels'
@@ -35,14 +49,15 @@ cv2.createTrackbar('Image',
                    switch_image)  # pass the update method as callback when the user moves the trackbar
 
 cv2.setTrackbarPos('Image', trackbar_fig_name, img_trackbar_init_pos)
-
+img = cv2.imread(test_images[img_trackbar_init_pos])
+update_image_name(test_images[img_trackbar_init_pos])
 
 #%% Create image channels
-img = cv2.imread(test_images[img_trackbar_init_pos])
-r = cu.R(img, trackbar_fig_name) # create R channel
+chan1 = cu.R(img, trackbar_fig_name) # create R channel
+# chan2 = cu.L(img, trackbar_fig_name)
+# chan3 = cu.S(img, trackbar_fig_name)
 
-# h = cu.H(img, trackbar_fig_name)
-sob_x = ed.SobelX(img, trackbar_fig_name)
+sob = ed.SobelMag(img, trackbar_fig_name)
 # sob_y = ed.SobelY(img, trackbar_fig_name)
 # sob_mag = ed.SobelMag(img, trackbar_fig_name)
 # sob_dir = ed.SobelDir(img, trackbar_fig_name)
@@ -56,10 +71,13 @@ while(1):
     # sob_mask = (sob_x.value_mask & sob_y.value_mask) | (sob_mag.value_mask & sob_dir.value_mask) 
     
     # cv2.imshow('test 2', cu.mask_to_img_8bit(sob_mask))
-    r.update_bgr(img)
+    chan1.update_bgr(img)
+    # chan2.update_bgr(img)
+    # chan3.update_bgr(img)
+    sob.update_bgr(img)
     
-    col = r.values
-    sob_mask = cu.mask_to_img_8bit(sob_x.value_mask)
+    col = chan1.values 
+    sob_mask = cu.mask_to_img_8bit(sob.value_mask)
     
     cv2.imshow('final result', col & sob_mask)
     

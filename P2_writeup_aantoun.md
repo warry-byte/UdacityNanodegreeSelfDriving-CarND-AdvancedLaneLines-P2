@@ -69,8 +69,9 @@ Color thresholding: Observations
 * Hmax: removes the sky and a portion of the gray component of the road. Same comment as for Vmin
 * R values: seem to delimitate the lines well. 
 
-test1.jpg, test2.jpg:
-R values: (112, 255) (to leave as much lines as possible)
+R values: (240, 255) (to leave as much lines as possible)
+
+To recover values in the images
 
 Color thresholding processing time: about 2 ms (ballpark value - might depend on the chosen thresholding)
 
@@ -92,37 +93,38 @@ Observations on test2.jpg:
 Results: 
 - gradient and color filtering: GradX & R
 - Threshold values:
-	46, 255
+	12, 255
 - Kernel value: 11
 
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
-The code for my perspective transform includes a function called `warper()`, which appears in lines 1 through 8 in the file `example.py` (output_images/examples/example.py) (or, for example, in the 3rd code cell of the IPython notebook).  The `warper()` function takes as inputs an image (`img`), as well as source (`src`) and destination (`dst`) points.  I chose the hardcode the source and destination points in the following manner:
+The code for my perspective transform includes a function called `warp_test_images()` based on warper(), which appears in lines 1 through 8 in the file `example.py` (output_images/examples/example.py).  The function takes as inputs an image (`img`).  
+As there is no information with respect to the camera extrinsics parameters in the car, the source points were chosen on the image straight_lines1.jpg, under the assumption that the lines are straight and that the camera position is the same for all recordings:
 
 ```python
-src = np.float32(
-    [[(img_size[0] / 2) - 55, img_size[1] / 2 + 100],
-    [((img_size[0] / 6) - 10), img_size[1]],
-    [(img_size[0] * 5 / 6) + 60, img_size[1]],
-    [(img_size[0] / 2 + 55), img_size[1] / 2 + 100]])
-dst = np.float32(
+s = np.float32([[285, 670],
+				[531, 498],
+				[756, 498],
+				[1019, 670]])
+	
+d = np.float32(
     [[(img_size[0] / 4), 0],
     [(img_size[0] / 4), img_size[1]],
     [(img_size[0] * 3 / 4), img_size[1]],
     [(img_size[0] * 3 / 4), 0]])
 ```
 
-This resulted in the following source and destination points:
+This resulted in the following destination points:
 
-| Source        | Destination   | 
-|:-------------:|:-------------:| 
-| 585, 460      | 320, 0        | 
-| 203, 720      | 320, 720      |
-| 1127, 720     | 960, 720      |
-| 695, 460      | 960, 0        |
+| Destination   | 
+|:-------------:| 
+| 320, 0        | 
+| 320, 720      |
+| 960, 720      |
+| 960, 0        |
 
-I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
+I verified that my perspective transform was working as expected by drawing the `s` and `d` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
 
 ![alt text][image4]
 
