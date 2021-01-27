@@ -91,6 +91,18 @@ def pipeline(img):
         out = cv2.cvtColor(output_unwarped, cv2.COLOR_BGR2RGB) # convert to BGR
     else:
         out = output_unwarped
+        
+    # Add text on image
+    font = cv2.FONT_HERSHEY_SIMPLEX  
+    org = (50, 50) 
+    fontScale = 1
+    color = (255, 0, 255) 
+    thickness = 2 # px
+    
+    left_rad, right_rad = llu.measure_curvature_real(left_fit, right_fit, out.shape[0]-1)
+    
+    txt = 'Radius: ' + str(left_rad + right_rad / 2) + ' m, pos: ' + str(lanes_mid_pos)
+    cv2.putText(out, txt, org, font, fontScale, color, thickness, cv2.LINE_AA) 
     
     
     return out
