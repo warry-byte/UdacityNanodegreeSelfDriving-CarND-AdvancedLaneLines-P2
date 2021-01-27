@@ -90,7 +90,7 @@ Color thresholding: Observations
 * Hmax: removes the sky and a portion of the gray component of the road. Same comment as for Vmin
 * R values: seem to delimitate the lines well. 
 
-R values: (220, 255) (to leave as much lines as possible)
+R values: (170, 255) (to leave as much lines as possible)
 
 Color thresholding processing time: about 2 ms (ballpark value - might depend on the chosen thresholding)
 
@@ -169,14 +169,13 @@ The result of this algorithm is depicted below, where the pixels identified as p
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-
+The radius of curvature was calculated with the expressions mentioned in the Udacity course, and implemented in file <lane_line_utilities.py>, in methods measure_curvature_real() and measure_curvature_pixels(). 
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-Here is an example of my result on a test image:
+Here is an example of the results obtained on a test image <test6.jpg>:
+<img src="file:///output_images/test6_output.jpg" alt="drawing" width="400"/>
 
-
-![alt text][image6]
 
 ---
 
@@ -192,4 +191,7 @@ Here's a [link to my video result](./project_video.mp4)
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+- Simplistic color and gradient filtering (tuning might be done automatically instead - not good at manual tuning)
+- Spent a lot of time on class implementation in view of tuning easiness 
+- Could improve on code encapsulation and lane following / recovery to save successful lanes positions and detect defects 
+- Radii of curvature could be more precise in view of the camera extrinsics (i.e. wrt to the car)
