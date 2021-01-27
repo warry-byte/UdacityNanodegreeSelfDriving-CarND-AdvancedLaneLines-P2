@@ -169,7 +169,7 @@ The result of this algorithm is depicted below, where the pixels identified as p
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-The radius of curvature was calculated with the expressions mentioned in the Udacity course, and implemented in file <lane_line_utilities.py>, in methods measure_curvature_real() and measure_curvature_pixels(). 
+The radius of curvature was calculated with the expressions mentioned in the Udacity course, and implemented in file <lane_line_utilities.py>, in methods measure_curvature_real() and measure_curvature_pixels(). The order of magnitude is 2.5 km to around 6 km. This could be improved if studied thoroughly. 
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
@@ -183,7 +183,7 @@ Here is an example of the results obtained on a test image <test6.jpg>:
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
-Here's a [link to my video result](./project_video.mp4)
+Here's a [link to my video result](./project_video_output.mp4)
 
 ---
 
@@ -191,7 +191,7 @@ Here's a [link to my video result](./project_video.mp4)
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-- Simplistic color and gradient filtering (tuning might be done automatically instead - not good at manual tuning)
-- Spent a lot of time on class implementation in view of tuning easiness 
+- Simplistic color and gradient filtering (tuning might be done automatically instead - not good at manual tuning). More work to robustify against low contrast / high brightness images. Also not tested on challenge videos. 
+- Spent a lot of time on class implementation in view of tuning easiness and on tuning itself...
 - Could improve on code encapsulation and lane following / recovery to save successful lanes positions and detect defects 
 - Radii of curvature could be more precise in view of the camera extrinsics (i.e. wrt to the car)
