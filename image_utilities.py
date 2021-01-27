@@ -56,7 +56,7 @@ def warp_test_images(img):
 
     return M, warped
 
-def unwarp_image_and_plot_lines(warped, undist, M, left_fitx, right_fitx, ploty):
+def unwarp_image_and_plot_lines(warped, undist, M, left_fit, right_fit):
     '''
     Visualize lane lines on image.
 
@@ -70,6 +70,16 @@ def unwarp_image_and_plot_lines(warped, undist, M, left_fitx, right_fitx, ploty)
     color_warp = np.dstack((warp_zero, warp_zero, warp_zero))
     
     # Recast the x and y points into usable format for cv2.fillPoly()
+    ploty = np.linspace(0, warped.shape[0]-1, warped.shape[0])
+    try:
+        left_fitx = left_fit[0]*ploty**2 + left_fit[1]*ploty + left_fit[2]
+        right_fitx = right_fit[0]*ploty**2 + right_fit[1]*ploty + right_fit[2]
+    except TypeError:
+        # Avoids an error if `left` and `right_fit` are still none or incorrect
+        print('The function failed to fit a line!')
+        left_fitx = 1*ploty**2 + 1*ploty
+        right_fitx = 1*ploty**2 + 1*ploty
+        
     pts_left = np.array([np.transpose(np.vstack([left_fitx, ploty]))])
     pts_right = np.array([np.flipud(np.transpose(np.vstack([right_fitx, ploty])))])
     pts = np.hstack((pts_left, pts_right))
@@ -85,7 +95,7 @@ def unwarp_image_and_plot_lines(warped, undist, M, left_fitx, right_fitx, ploty)
     
     # Combine the result with the original image
     result = cv2.addWeighted(undist, 1, newwarp, 0.3, 0)
-    plt.imshow(result)
+    # plt.imshow(result)
     
     return result
 

@@ -164,15 +164,17 @@ The image will be divided in the X dimension into equal "windows" (rectangle) --
 	* If the current window contains more pixels than minpix threshold: recenter current window
 
 The result of this algorithm is depicted below, where the pixels identified as part of the lane lines are colored in blue and red for each lane:
+
 <img src="file:///output_images/test1.jpg" alt="drawing" width="200"/>
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-I did this in lines # through # in my code in `my_other_file.py`
+
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
+Here is an example of my result on a test image:
+
 
 ![alt text][image6]
 
