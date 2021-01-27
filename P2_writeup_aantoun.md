@@ -44,7 +44,7 @@ You're reading it!
 - image_utilities.py: warping methods
 - image_channel.py: Abstract parent class for all image channels (colors, gradients). It contains all the logic to handle channels thresholding and the user interface on the form of OpenCV trackbars for min and max thresholds. 
 
-Related files: 
+#### Other files: 
 - color_utilities.py: contains color channel classes and methods to get all colors (H, S, V, L, and R G B). 
 - edge_detection_utilities.py: contains class FilterParameter (inherits from ImageChannel), and child classes Sobel- (Sobel gradients, etc)
 
@@ -63,15 +63,18 @@ Note that images calibration1.jpg, calibration4.jpg and calibration5.jpg could n
 
 I then used the output `objpoints` and `imgpoints` to compute the camera calibration and distortion coefficients using the `cv2.calibrateCamera()` function.  I applied this distortion correction to the test image using the `cv2.undistort()` function and obtained this result: 
 
-![Undistorted image example](file:///output_images/calibration1.jpg_undistort.jpg "undistort" )
-
+<img src="file:///output_images/calibration1.jpg_undistort.jpg" alt="drawing" width="200"/>
 
 ### Pipeline (single images)
 
 #### 1. Provide an example of a distortion-corrected image.
 
 To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
-![alt text][image2]
+
+<img src="file:///output_images/straight_lines1.jpg" alt="drawing" width="200"/>
+<img src="file:///output_images/straight_lines1_undist.jpg" alt="drawing" width="200"/>
+
+The difference between distorted and undistorted image can be noticed especially at the bottom left corner of the image. 
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
@@ -87,9 +90,7 @@ Color thresholding: Observations
 * Hmax: removes the sky and a portion of the gray component of the road. Same comment as for Vmin
 * R values: seem to delimitate the lines well. 
 
-R values: (240, 255) (to leave as much lines as possible)
-
-To recover values in the images
+R values: (220, 255) (to leave as much lines as possible)
 
 Color thresholding processing time: about 2 ms (ballpark value - might depend on the chosen thresholding)
 
@@ -121,10 +122,13 @@ The code for my perspective transform includes a function called `warp_test_imag
 As there is no information with respect to the camera extrinsics parameters in the car, the source points were chosen on the image straight_lines1.jpg, under the assumption that the lines are straight and that the camera position is the same for all recordings:
 
 ```python
-s = np.float32([[285, 670],
-				[531, 498],
-				[756, 498],
-				[1019, 670]])
+
+s = np.float32(
+[[(img_size[0] / 2) - 60, img_size[1] / 2 + 100],
+[((img_size[0] / 6) - 10), img_size[1]],
+[(img_size[0] * 5 / 6) + 60, img_size[1]],
+[(img_size[0] / 2 + 60), img_size[1] / 2 + 100]])
+    
 	
 d = np.float32(
     [[(img_size[0] / 4), 0],
@@ -133,24 +137,34 @@ d = np.float32(
     [(img_size[0] * 3 / 4), 0]])
 ```
 
-This resulted in the following destination points:
+This resulted in the following destination points (slightly different from Udacity initial points):
 
-| Destination   | 
-|:-------------:| 
-| 320, 0        | 
-| 320, 720      |
-| 960, 720      |
-| 960, 0        |
+| Source        | Destination   | 
+|:-------------:|:-------------:| 
+| 580, 460      | 320, 0        | 
+| 203, 720      | 320, 720      |
+| 1127, 720     | 960, 720      |
+| 700, 460      | 960, 0        |
 
 I verified that my perspective transform was working as expected by drawing the `s` and `d` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
 
-![alt text][image4]
+<img src="file:///output_images/straight_lines1_unwarped_bw.jpg" alt="drawing" width="200"/>
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
+To find the lanes in the image and apply the polynomial fit, the following operations are executed:
+- Input image: color + gradient filtered image binary
+- Sum pixels along the X dimension --> histogram of the bottom half of the image
+- Calculate left and right peak points of the histogram --> this will be the starting point of the lane line search
+The image will be divided in the X dimension into equal "windows" (rectangle) --> sliding windows
+- For window i:
+	* Identify boundaries of window i according to window parameters
+	* Identify non-zero pixels in current left and right windows
+	* Save indices of pixels that are in the current windows
+	* If the current window contains more pixels than minpix threshold: recenter current window
 
-![alt text][image5]
+The result of this algorithm is depicted below, where the pixels identified as part of the lane lines are colored in blue and red for each lane:
+<img src="file:///output_images/test1.jpg" alt="drawing" width="200"/>
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 

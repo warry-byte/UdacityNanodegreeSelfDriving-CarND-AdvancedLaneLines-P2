@@ -144,7 +144,7 @@ def fit_polynomial(binary_warped):
     plt.xlim(0, 1280)
     plt.ylim(720, 0)
 
-    return out_img
+    return out_img, left_fitx, right_fitx, ploty
 
 # Main
 if __name__ == '__main__':
