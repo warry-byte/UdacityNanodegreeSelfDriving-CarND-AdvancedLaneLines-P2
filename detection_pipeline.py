@@ -56,11 +56,11 @@ def pipeline(input_img, filename):
     cv2.imwrite(output_folder + os.path.splitext(os.path.basename(filename))[0] + '_unwarped_bw.jpg', warp_img)
 
     # Create lane lines by fitting polynomial
-    out_img, left_fit, right_fit = llu.fit_polynomial(warp_img)
+    out_img, left_fit, right_fit, lanes_mid_pos = llu.fit_polynomial(warp_img)
     
     output_unwarped = iu.unwarp_image_and_plot_lines(warp_img, undist_img, M, left_fit, right_fit)
     
-    return out_img, output_unwarped, left_fit, right_fit
+    return out_img, output_unwarped, left_fit, right_fit, lanes_mid_pos
 
 # Main
 if __name__ == '__main__':
@@ -80,19 +80,19 @@ if __name__ == '__main__':
     #%% Analyze all files
     for f in test_images:
         current_img = cv2.imread(f)
-        output_img, output_img_unwarped, left_fit, right_fit = pipeline(current_img, f) # Execute pipeline
+        output_img, output_img_unwarped, left_fit, right_fit, lanes_mid_pos = pipeline(current_img, f) # Execute pipeline
         
         # TODO remove (debug only)
         # Text on image: display coefficients
-        font = cv2.FONT_HERSHEY_SIMPLEX  
-        org = (50, 50) 
-        fontScale = 1
-        color = (255, 0, 255) 
-        thickness = 2 # px
+        # font = cv2.FONT_HERSHEY_SIMPLEX  
+        # org = (50, 50) 
+        # fontScale = 1
+        # color = (255, 0, 255) 
+        # thickness = 2 # px
         
-        # Display image name
-        txt = "xL = " + str(left_fit[0]) + " y^2 + " + str(left_fit[1]) + " y + " + str(left_fit[2])
-        cv2.putText(output_img, txt, org, font, fontScale, color, thickness, cv2.LINE_AA) 
+        # # Display image name
+        # txt = "xL = " + str(left_fit[0]) + " y^2 + " + str(left_fit[1]) + " y + " + str(left_fit[2])
+        # cv2.putText(output_img, txt, org, font, fontScale, color, thickness, cv2.LINE_AA) 
         
         cv2.imwrite(output_folder + os.path.basename(f), output_img)
         cv2.imwrite(output_folder + os.path.splitext(os.path.basename(f))[0] + '_output.jpg', output_img_unwarped)
@@ -100,6 +100,8 @@ if __name__ == '__main__':
         left_radius, right_radius = llu.measure_curvature_real(left_fit, right_fit, output_img.shape[0]-1)
         
         print("File: " + f + ", radii: " + str(left_radius) + ", " + str(right_radius))
+        print("Lanes middle position: " + str(lanes_mid_pos))
+        
     
     # cv2.destroyAllWindows()
     

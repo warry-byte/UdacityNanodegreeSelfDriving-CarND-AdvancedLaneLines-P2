@@ -30,7 +30,7 @@ class Line():
         self.ally = None  
         
 # From Udacity
-def find_lane_pixels(binary_warped):
+def find_lane_pixels_get_pos(binary_warped):
     # Take a histogram of the bottom half of the image
     histogram = np.sum(binary_warped[binary_warped.shape[0]//2:,:], axis=0)
     # Create an output image to draw on and visualize the result
@@ -40,6 +40,9 @@ def find_lane_pixels(binary_warped):
     midpoint = np.int(histogram.shape[0]//2)
     leftx_base = np.argmax(histogram[:midpoint])
     rightx_base = np.argmax(histogram[midpoint:]) + midpoint
+    
+    # Define vehicle position as the midpoint of the histograms bottom
+    lanes_mid_pos = midpoint
 
     # HYPERPARAMETERS
     # Choose the number of sliding windows
@@ -109,14 +112,13 @@ def find_lane_pixels(binary_warped):
     rightx = nonzerox[right_lane_inds]
     righty = nonzeroy[right_lane_inds]
 
-    return leftx, lefty, rightx, righty, out_img
+    return leftx, lefty, rightx, righty, out_img, lanes_mid_pos
 
 
 def fit_polynomial(binary_warped):
     # Find our lane pixels first
-    leftx, lefty, rightx, righty, out_img = find_lane_pixels(binary_warped)
+    leftx, lefty, rightx, righty, out_img, lanes_mid_pos = find_lane_pixels_get_pos(binary_warped)
 
-    ### TO-DO: Fit a second order polynomial to each using `np.polyfit` ###
     # we fit x values as fct of y values, as the lines are considered vertical in this detection algorithm
     left_fit = np.polyfit(lefty, leftx, 2)
     right_fit = np.polyfit(righty, rightx, 2)
@@ -144,7 +146,7 @@ def fit_polynomial(binary_warped):
     # plt.xlim(0, 1280)
     # plt.ylim(720, 0)
 
-    return out_img, left_fit, right_fit
+    return out_img, left_fit, right_fit, lanes_mid_pos
 
 def measure_curvature_pixels(left_fit, right_fit, y_eval):
     '''
@@ -177,7 +179,7 @@ if __name__ == '__main__':
     # Load our image
     binary_warped = mpimg.imread('output_images/straight_lines1.jpg')
     
-    # leftx, lefty, rightx, righty, out_img = find_lane_pixels(binary_warped)
+    # leftx, lefty, rightx, righty, out_img = find_lane_pixels_get_pos(binary_warped)
     out_img = fit_polynomial(binary_warped)
     
     plt.figure()
